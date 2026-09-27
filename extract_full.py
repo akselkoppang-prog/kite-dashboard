@@ -363,14 +363,14 @@ for s in sessions_out:
 sessions_out = sorted(deduped, key=lambda x: x['start_timestamp'])
 
 print(f"Sessions: {len(sessions_out)}, skipped_csv: {skipped_csv}")
-print(f"With altitude: {sum(1 for s in sessions_out if s['has_alt']}")
+print(f"With altitude: {sum(1 for s in sessions_out if s['has_alt'])}")
 print(f"With HR: {sum(1 for s in sessions_out if s['has_hr'])}")
 print(f"Locations: {sorted(set(s['location'] for s in sessions_out))}")
 # Sample alt stats
 for s in sessions_out[:3]:
     print(f"  {s['date']} alt={s['avg_alt']} min={s['min_alt']} max={s['max_alt']} asc={s['total_ascent']}")
 
-out = {'ressions': sessions_out, 'tracks': tracks_out, 'timeseries': timeseries_out}
+out = {'sessions': sessions_out, 'tracks': tracks_out, 'timeseries': timeseries_out}
 with open('/sessions/vibrant-friendly-franklin/kite_data_clean.json','w') as f:
     json.dump(out, f)
 print("Saved")
