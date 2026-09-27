@@ -1540,7 +1540,7 @@ function updateTable() {
     const rank = sortDir === 1 ? i + 1 : sorted.length - i;
     
     const distBar = s.distance_km ? `<span class="speed-bar" style="width:${(s.distance_km/maxDist*40).toFixed(0)}px"></span>` : '';
-    const spdBar = s.max_speed_kmh ? `<span class="speed-bar" style="width:$x(s.max_speed_kmh/maxSpd*40).toFixed(0)}px;background:linear-gradient(90deg,var(--red),#f87171)"></span>` : '';
+    const spdBar = s.max_speed_kmh ? `<span class="speed-bar" style="width:${(s.max_speed_kmh/maxSpd*40).toFixed(0)}px;background:linear-gradient(90deg,var(--red),#f87171)"></span>` : '';
     
     const locColor = {
       'Adur, West Sussex': '#f59e0b',
@@ -1782,7 +1782,7 @@ function buildDistanceChart() {
       labels: s.map(x => x.date?.substring(0,10) || ''),
       datasets: [
         { label: 'Distance (km)', data: s.map(x => x.distance_km), backgroundColor: 'rgba(245,158,11,0.65)', borderColor: '#f59e0b', borderWidth: 1, yAxisID: 'y', borderRadius: 4, hoverBackgroundColor: 'rgba(245,158,11,0.95)' },
-        { label: 'Duration (min(', type: 'line', data: s.map(x => x.duration_min), borderColor: '#8b5cf6', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 2, pointHoverRadius: 6, tension: 0.3, yAxisID: 'y2' },
+        { label: 'Duration (min)', type: 'line', data: s.map(x => x.duration_min), borderColor: '#8b5cf6', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 2, pointHoverRadius: 6, tension: 0.3, yAxisID: 'y2' },
       ]
     },
     options: {
