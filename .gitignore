@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+*.fit
+.DS_Store
