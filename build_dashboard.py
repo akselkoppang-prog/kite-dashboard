@@ -4,8 +4,8 @@ _data_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'kite_data
 with gzip.open(_data_file, 'rt', encoding='utf-8') as f:
     kite_data = json.load(f)
 
-sessions_json = json.dumps(kite_data['sessions'])
-tracks_json = json.dumps(kite_data['tracks'])
+sessions_json = json.dumps(kite_data.get('sessions', []))
+tracks_json = json.dumps(kite_data.get('tracks', []))
 timeseries_json = json.dumps(kite_data.get('timeseries', {}))
 
 html = '''<!DOCTYPE html>
@@ -14,10 +14,10 @@ html = '''<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kite Dashboard — Aksel</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <style>
   :root {
     --bg: #0a0e1a;
@@ -2345,9 +2345,34 @@ function buildLocationChart() {
     }
   });
 }
+
+// Auto-resize the enclosing Streamlit iframe to fit the dashboard's
+// actual content height (falls back silently outside an iframe context).
+(function () {
+  function resizeFrame() {
+    try {
+      var frame = window.frameElement;
+      if (frame && document.body) {
+        frame.style.height = document.body.scrollHeight + 'px';
+      }
+    } catch (e) { /* cross-origin or no frame — ignore */ }
+  }
+  if (typeof ResizeObserver !== 'undefined' && document.body) {
+    new ResizeObserver(resizeFrame).observe(document.body);
+  }
+  window.addEventListener('load', resizeFrame);
+  setTimeout(resizeFrame, 500);
+  setTimeout(resizeFrame, 1500);
+})();
 </script>
 </body>
 </html>'''
+
+
+def build_html():
+    """Return the fully rendered dashboard HTML string."""
+    return html
+
 
 if __name__ == "__main__":
     out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'kite_dashboard.html')

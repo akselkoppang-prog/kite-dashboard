@@ -17,10 +17,12 @@ iframe { display: block; }
 """, unsafe_allow_html=True)
 
 @st.cache_resource(show_spinner="Building dashboard…")
-def build_html():
-    """Generate the dashboard HTML from kite_data_clean.json."""
+def get_dashboard_html():
+    """Generate the dashboard HTML from kite_data_clean.json.gz."""
     import build_dashboard
-    return build_dashboard.html
+    return build_dashboard.build_html()
 
-html = build_html()
+html = get_dashboard_html()
+# height is an initial fallback; the embedded JS auto-resizes the iframe
+# to fit actual content height once loaded (see build_dashboard.py).
 components.html(html, height=3200, scrolling=True)

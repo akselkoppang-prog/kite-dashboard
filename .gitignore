@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 *.fit
 .DS_Store
+kite_data_clean.json
+.env
+venv/
