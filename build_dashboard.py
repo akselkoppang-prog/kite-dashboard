@@ -2349,8 +2349,8 @@ function buildLocationChart() {
 </body>
 </html>'''
 
-with open('/sessions/vibrant-friendly-franklin/kite_dashboard.html', 'w') as f:
-    f.write(html)
-
-import os
-print(f"Dashboard written: {os.path.getsize('/sessions/vibrant-friendly-franklin/kite_dashboard.html')/1024:.0f} KB")
+if __name__ == "__main__":
+    out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'kite_dashboard.html')
+    with open(out_path, 'w') as f:
+        f.write(html)
+    print(f"Dashboard written: {os.path.getsize(out_path)/1024:.0f} KB")
