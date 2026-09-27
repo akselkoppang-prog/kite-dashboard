@@ -12,7 +12,7 @@ html = '''<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Kite Dashboard — Aksel</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -139,7 +139,7 @@ html = '''<!DOCTYPE html>
   .cal-day-label { font-size: 0.6rem; color: var(--text3); text-align: right; width: 24px; }
 
   /* Table */
-  .table-wrap { overflow-x: auto; border-radius: 8px; }
+  .table-wrap { overflow-x: auto; border-radius: 8px; -webkit-overflow-scrolling: touch; }
   table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
   thead { background: var(--surface2); position: sticky; top: 0; z-index: 5; }
   th {
@@ -182,7 +182,35 @@ html = '''<!DOCTYPE html>
     .chart-grid, .chart-grid-3 { grid-template-columns: 1fr; }
     .chart-card.two-thirds { grid-column: 1; }
   }
-  
+
+  /* Mobile phones */
+  @media (max-width: 640px) {
+    .header { padding: 12px 14px; }
+    .main { padding: 12px 14px; }
+    .filter-bar { padding: 8px 14px; gap: 8px; }
+    .header-icon { font-size: 1.4rem; }
+    .header-title h1 { font-size: 1.1rem; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .stat-value { font-size: 1.5rem; }
+    #map { height: 240px; }
+    .detail-panel { width: 100vw; }
+    .dp-primary-stats { grid-template-columns: repeat(2, 1fr); }
+    .dp-secondary-stats { grid-template-columns: 1fr 1fr; }
+    .dp-primary-stat-val { font-size: 1.15rem; }
+    .cal-cell { width: 11px; height: 11px; }
+    .cal-day-label, .cal-month-label { display: none; }
+    .filter-btn { padding: 7px 12px; font-size: 0.8rem; min-height: 36px; }
+  }
+
+  /* Landscape phones (short viewport height) */
+  @media (max-height: 500px) and (orientation: landscape) {
+    #map { height: 200px; }
+    .detail-panel { width: 100vw; height: 90vh; top: 5vh; border-radius: 12px 12px 0 0; }
+    .header { padding: 6px 14px; position: relative; }
+    .header-icon { display: none; }
+    .filter-bar { padding: 5px 14px; }
+  }
+
   /* Speed gradient legend */
   .legend { display: flex; align-items: center; gap: 8px; font-size: 0.72rem; color: var(--text3); }
   .legend-gradient { width: 80px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #06b6d4, #0ea5e9, #f59e0b, #ef4444); }
