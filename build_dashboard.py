@@ -103,6 +103,8 @@ html = '''<!DOCTYPE html>
   /* Chart grid */
   .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
   .chart-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .chart-grid--map { grid-template-columns: 2fr 1fr; margin-bottom: 0; }
+  @media (max-width: 900px) { .chart-grid--map { grid-template-columns: 1fr; } }
   .chart-card {
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
     padding: 20px; position: relative;
@@ -200,6 +202,19 @@ html = '''<!DOCTYPE html>
     .cal-cell { width: 11px; height: 11px; }
     .cal-day-label, .cal-month-label { display: none; }
     .filter-btn { padding: 7px 12px; font-size: 0.8rem; min-height: 36px; }
+    .filter-sep { display: none; }
+    .filter-label { display: none; }
+    .stat-card { padding: 12px 14px; }
+    .stat-value { font-size: 1.35rem; }
+    .stat-unit { font-size: 0.75rem; }
+    .dp-header-content { padding: 12px 14px 14px; }
+    .dp-body { padding: 0 14px 24px; }
+    .dp-title { font-size: 1.05rem; }
+    .dp-cmp-row { flex-wrap: wrap; gap: 6px; }
+    .dp-cmp-bar-wrap { width: 60px; }
+    .dp-cmp-val { min-width: 48px; font-size: 0.72rem; }
+    .dp-cmp-badge { font-size: 0.58rem; }
+    .chart-card { padding: 14px; }
   }
 
   /* Landscape phones (short viewport height) */
@@ -254,7 +269,7 @@ html = '''<!DOCTYPE html>
   .dp-tags { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
   .dp-tag { padding: 3px 10px; border-radius: 20px; font-size: 0.73rem; font-weight: 700; background: #1e293b; color: #94a3b8; }
   .dp-close {
-    width: 32px; height: 32px; border-radius: 50%; border: 1px solid #2d3748;
+    width: 44px; height: 44px; border-radius: 50%; border: 1px solid #2d3748;
     background: #1a2236; color: var(--text2); cursor: pointer; font-size: 1rem;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     transition: all 0.15s; margin-top: -2px;
@@ -533,7 +548,7 @@ html = '''<!DOCTYPE html>
     <!-- Map + Monthly -->
     <div class="sortable-item" data-id="map-monthly">
       <div class="widget-row-handle"><span class="row-label">GPS Map &amp; Monthly Breakdown</span><span class="row-drag" title="Drag to reorder">⠿⠿</span></div>
-      <div class="chart-grid" style="grid-template-columns: 2fr 1fr;margin-bottom:0;">
+      <div class="chart-grid chart-grid--map">
         <div class="chart-card">
           <div class="card-title">
             <div class="dot" style="background:var(--accent)"></div>
@@ -1533,6 +1548,16 @@ function closeDetailPanel() {
   if (dpRadarChart) { dpRadarChart.destroy(); dpRadarChart = null; }
   document.querySelectorAll('#sessions-table tr').forEach(r => r.classList.remove('selected'));
 }
+
+(function() {
+  const panel = document.getElementById('detail-panel');
+  let startX = 0;
+  panel.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+  panel.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    if (dx > 60) closeDetailPanel();
+  }, { passive: true });
+})();
 
 function resetMapSelection() {
   Object.values(trackLayers).forEach(layers => layers.forEach(l => l.setStyle({ weight: 2, opacity: 0.6 })));
