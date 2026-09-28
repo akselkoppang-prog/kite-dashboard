@@ -1,5 +1,6 @@
 import os
 import subprocess
+import sys
 
 import streamlit as st
 import streamlit.components.v1 as components
@@ -19,24 +20,22 @@ iframe { display: block; }
 </style>
 """, unsafe_allow_html=True)
 
-_synced_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'last_synced.txt')
-
-with st.sidebar:
-    if os.path.exists(_synced_file):
-        with open(_synced_file) as f:
-            st.caption(f"Last synced: {f.read().strip()}")
-    else:
-        st.caption("Last synced: never")
-
-    if st.button("🔄 Sync from Garmin"):
-        with st.spinner("Syncing from Garmin Connect…"):
-            try:
-                subprocess.run(["python", "garmin_sync.py"], check=True)
-            except subprocess.CalledProcessError as e:
-                st.error(f"Sync failed: {e}")
-            else:
-                st.cache_resource.clear()
-                st.rerun()
+# The floating "🔄 Sync" button embedded in the dashboard HTML (see
+# build_dashboard.py) navigates this outer page directly to ?sync=1 — it's
+# same-origin with the dashboard's components.html iframe, so no message
+# listener is needed here.
+if st.query_params.get("sync") == "1":
+    with st.spinner("Syncing from Strava/Garmin..."):
+        result = subprocess.run(
+            [sys.executable, "garmin_sync.py"],
+            capture_output=True, text=True, cwd=os.path.dirname(os.path.abspath(__file__))
+        )
+        if result.returncode == 0:
+            st.cache_resource.clear()
+        else:
+            st.error(f"Sync failed: {result.stderr}")
+        st.query_params.clear()
+        st.rerun()
 
 @st.cache_resource(show_spinner="Building dashboard…")
 def get_dashboard_html():

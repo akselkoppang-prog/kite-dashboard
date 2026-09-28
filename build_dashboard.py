@@ -110,8 +110,30 @@ html = '''<!DOCTYPE html>
   /* Chart grid */
   .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
   .chart-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
-  .chart-grid--map { grid-template-columns: 2fr 1fr; margin-bottom: 0; }
-  @media (max-width: 900px) { .chart-grid--map { grid-template-columns: 1fr; } }
+  .chart-grid--map, .main-grid { grid-template-columns: 2fr 1fr; margin-bottom: 0; }
+  @media (max-width: 900px) { .chart-grid--map, .main-grid { grid-template-columns: 1fr; } }
+
+  #sync-btn-container {
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(15,15,25,0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 6px 14px 6px 10px;
+    font-size: 12px;
+    color: #aaa;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  #sync-btn-container:hover { background: rgba(30,30,50,0.95); }
+  #sync-btn { background: none; border: none; color: #fff; font-size: 13px; cursor: pointer; }
+  #last-synced { font-size: 11px; color: #888; white-space: nowrap; }
   .chart-card {
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
     padding: 20px; position: relative;
@@ -445,6 +467,11 @@ html = '''<!DOCTYPE html>
 </head>
 <body>
 
+<div id="sync-btn-container" onclick="triggerSync()">
+  <button id="sync-btn">🔄 Sync</button>
+  <span id="last-synced">Last synced: __LAST_SYNCED__</span>
+</div>
+
 <div class="header">
   <div class="header-icon">🪁</div>
   <div class="header-title">
@@ -454,8 +481,6 @@ html = '''<!DOCTYPE html>
   <div style="display:flex;gap:8px;align-items:center;">
     <span style="font-size:0.78rem;color:var(--text3);">Last session:</span>
     <span id="last-session-date" style="font-size:0.85rem;color:var(--accent3);font-weight:600;"></span>
-    <span style="font-size:0.78rem;color:var(--text3);margin-left:14px;">Last synced:</span>
-    <span style="font-size:0.85rem;color:var(--text2);font-weight:600;">__LAST_SYNCED__</span>
   </div>
 </div>
 
@@ -557,7 +582,7 @@ html = '''<!DOCTYPE html>
     <!-- Map + Monthly -->
     <div class="sortable-item" data-id="map-monthly">
       <div class="widget-row-handle"><span class="row-label">GPS Map &amp; Monthly Breakdown</span><span class="row-drag" title="Drag to reorder">⠿⠿</span></div>
-      <div class="chart-grid chart-grid--map">
+      <div class="chart-grid chart-grid--map main-grid">
         <div class="chart-card">
           <div class="card-title">
             <div class="dot" style="background:var(--accent)"></div>
@@ -2425,6 +2450,19 @@ function buildLocationChart() {
       }
     }
   });
+}
+
+function triggerSync() {
+  const btn = document.getElementById('sync-btn');
+  btn.textContent = '⏳';
+  // This dashboard is embedded via Streamlit's components.html, whose iframe
+  // is same-origin (srcdoc) with the outer Streamlit page, so we can navigate
+  // it directly — app.py picks up ?sync=1 and runs garmin_sync.py.
+  try {
+    window.parent.location.search = '?sync=1';
+  } catch (e) {
+    window.parent.location.reload();
+  }
 }
 
 // Auto-resize the enclosing Streamlit iframe to fit the dashboard's
