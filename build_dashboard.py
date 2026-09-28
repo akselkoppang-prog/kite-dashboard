@@ -1182,6 +1182,10 @@ function makeDpChart(canvasId, labels, vals, borderColor, unit, tooltipFmt) {
 }
 
 function openDetailPanel(session) {
+  console.log('[DP] openDetailPanel called with:', JSON.stringify(session, null, 2));
+  console.log('[DP] track data:', ALL_TRACKS[session.filename] ? ALL_TRACKS[session.filename].length + ' points' : 'MISSING');
+  console.log('[DP] timeseries:', ALL_TIMESERIES[session.filename] ? Object.keys(ALL_TIMESERIES[session.filename]) : 'MISSING');
+
   const sportColor = session.sport_type === 'kiteboarding' ? '#06b6d4' : '#a78bfa';
   const sportLabel = session.sport_type === 'kiteboarding' ? '🏄 Kiteboarding' : '🎿 Snowkiting';
 
@@ -1536,6 +1540,21 @@ function openDetailPanel(session) {
   // ── Open panel ───────────────────────────────────────────────
   document.getElementById('detail-panel').classList.add('open');
   document.getElementById('dp-overlay').classList.add('open');
+
+  // The dashboard is embedded via Streamlit's components.html, whose iframe
+  // is auto-resized to the full document height (see resizeFrame below) so
+  // the OUTER page — not this iframe — is what actually scrolls. That means
+  // `position: fixed` and `100vh` inside this document are relative to the
+  // full (very tall) iframe, not the visible browser window. Unless the
+  // outer page happens to be scrolled to the very top, the fixed detail
+  // panel renders off-screen and looks blank. Scroll the iframe itself into
+  // view so its top — where the panel's real content lives — lines up with
+  // the visible viewport.
+  try {
+    if (window.frameElement) {
+      window.frameElement.scrollIntoView({ behavior: 'auto', block: 'start' });
+    }
+  } catch (e) { /* cross-origin or no frame — ignore */ }
 }
 
 function closeDetailPanel() {
