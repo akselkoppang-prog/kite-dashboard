@@ -1,3 +1,6 @@
+import os
+import subprocess
+
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -15,6 +18,25 @@ st.markdown("""
 iframe { display: block; }
 </style>
 """, unsafe_allow_html=True)
+
+_synced_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'last_synced.txt')
+
+with st.sidebar:
+    if os.path.exists(_synced_file):
+        with open(_synced_file) as f:
+            st.caption(f"Last synced: {f.read().strip()}")
+    else:
+        st.caption("Last synced: never")
+
+    if st.button("🔄 Sync from Garmin"):
+        with st.spinner("Syncing from Garmin Connect…"):
+            try:
+                subprocess.run(["python", "garmin_sync.py"], check=True)
+            except subprocess.CalledProcessError as e:
+                st.error(f"Sync failed: {e}")
+            else:
+                st.cache_resource.clear()
+                st.rerun()
 
 @st.cache_resource(show_spinner="Building dashboard…")
 def get_dashboard_html():

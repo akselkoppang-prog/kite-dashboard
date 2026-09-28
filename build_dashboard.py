@@ -5,8 +5,15 @@ with gzip.open(_data_file, 'rt', encoding='utf-8') as f:
     kite_data = json.load(f)
 
 sessions_json = json.dumps(kite_data.get('sessions', []))
-tracks_json = json.dumps(kite_data.get('tracks', []))
+tracks_json = json.dumps(kite_data.get('tracks', {}))
 timeseries_json = json.dumps(kite_data.get('timeseries', {}))
+
+_synced_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'last_synced.txt')
+if os.path.exists(_synced_file):
+    with open(_synced_file) as f:
+        last_synced = f.read().strip()
+else:
+    last_synced = None
 
 html = '''<!DOCTYPE html>
 <html lang="en">
@@ -447,6 +454,8 @@ html = '''<!DOCTYPE html>
   <div style="display:flex;gap:8px;align-items:center;">
     <span style="font-size:0.78rem;color:var(--text3);">Last session:</span>
     <span id="last-session-date" style="font-size:0.85rem;color:var(--accent3);font-weight:600;"></span>
+    <span style="font-size:0.78rem;color:var(--text3);margin-left:14px;">Last synced:</span>
+    <span style="font-size:0.85rem;color:var(--text2);font-weight:600;">__LAST_SYNCED__</span>
   </div>
 </div>
 
@@ -2439,6 +2448,8 @@ function buildLocationChart() {
 </script>
 </body>
 </html>'''
+
+html = html.replace('__LAST_SYNCED__', last_synced if last_synced else 'Never')
 
 
 def build_html():
