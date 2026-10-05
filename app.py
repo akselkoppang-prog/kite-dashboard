@@ -20,7 +20,7 @@ iframe { display: block; }
 </style>
 """, unsafe_allow_html=True)
 
-# The floating "🔄 Sync" button embedded in the dashboard HTML (see
+# The "🔄 Sync" button embedded in the dashboard header (see
 # build_dashboard.py) navigates this outer page directly to ?sync=1 — it's
 # same-origin with the dashboard's components.html iframe, so no message
 # listener is needed here.

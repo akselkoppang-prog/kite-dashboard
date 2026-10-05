@@ -46,14 +46,27 @@ def refresh_access_token(client_id, client_secret, refresh_token):
 
 
 def is_kite_activity(activity):
+    """Cheap, zero-extra-request check using only fields already present on
+    the activity summary (name / sport type). Activities recorded with the
+    Surfr kitesurfing app aren't caught here — see is_surfr_activity, which
+    needs the per-activity detail endpoint."""
     name = (activity.get('name') or '').lower()
-    if 'kite' in name:
+    if 'kite' in name or 'surfr' in name:
         return True
     if (activity.get('sport_type') or '').lower() in KITE_SPORT_TYPES:
         return True
     if (activity.get('type') or '').lower() in KITE_SPORT_TYPES:
         return True
     return False
+
+
+def is_surfr_activity(detail):
+    """Surfr-recorded sessions don't always have "kite" in the name or a
+    kite-specific Strava sport type, but Surfr tags the activity's
+    recording device/app — only exposed via the detailed activity
+    endpoint, not the summary list."""
+    device = (detail.get('device_name') or '').lower()
+    return 'surfr' in device
 
 
 def fetch_all_activities(access_token, per_page=200):
@@ -70,6 +83,15 @@ def fetch_all_activities(access_token, per_page=200):
         activities.extend(batch)
         page += 1
     return activities
+
+
+def fetch_activity_detail(access_token, activity_id):
+    headers = {'Authorization': f'Bearer {access_token}'}
+    resp = requests.get(f'{API_BASE}/activities/{activity_id}', headers=headers, timeout=30)
+    if resp.status_code == 404:
+        return {}
+    resp.raise_for_status()
+    return resp.json()
 
 
 def fetch_streams(access_token, activity_id):
@@ -232,13 +254,34 @@ def main():
     activities = fetch_all_activities(access_token)
     print(f'Fetched {len(activities)} total activities.')
 
-    kite_activities = [a for a in activities if is_kite_activity(a)]
-    print(f'Found {len(kite_activities)} kite-related activities.')
-
     data = load_existing_data()
     data.setdefault('tracks', {})
     data.setdefault('timeseries', {})
     existing_ids = {s.get('activity_id') for s in data['sessions'] if s.get('activity_id')}
+
+    kite_activities = [a for a in activities if is_kite_activity(a)]
+    kite_ids = {a['id'] for a in kite_activities}
+    print(f'Found {len(kite_activities)} kite-related activities by name/sport type.')
+
+    # Some sessions are recorded with the Surfr kitesurfing app without
+    # "kite" in the name or a kite-specific Strava sport type — Surfr only
+    # shows up in the activity's recording device, which requires fetching
+    # the detail endpoint per activity. Only check activities that aren't
+    # already new syncs we're about to skip anyway.
+    other_activities = [a for a in activities
+                         if a['id'] not in kite_ids and a.get('id') not in existing_ids]
+    surfr_found = 0
+    for act in other_activities:
+        try:
+            detail = fetch_activity_detail(access_token, act['id'])
+        except requests.HTTPError as e:
+            print(f"WARN: failed to fetch detail for activity {act['id']}: {e}")
+            continue
+        if is_surfr_activity(detail):
+            kite_activities.append(detail)
+            surfr_found += 1
+    if surfr_found:
+        print(f'Found {surfr_found} additional kite session(s) recorded with the Surfr app.')
 
     added = 0
     for act in kite_activities:

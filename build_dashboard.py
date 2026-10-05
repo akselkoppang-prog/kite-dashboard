@@ -113,27 +113,27 @@ html = '''<!DOCTYPE html>
   .chart-grid--map, .main-grid { grid-template-columns: 2fr 1fr; margin-bottom: 0; }
   @media (max-width: 900px) { .chart-grid--map, .main-grid { grid-template-columns: 1fr; } }
 
+  /* Sync widget lives inline in the header's right side, not as a fixed
+     overlay — a fixed top-right widget used to sit directly on top of the
+     "Last session" label. */
   #sync-btn-container {
-    position: fixed;
-    top: 12px;
-    right: 16px;
-    z-index: 9999;
     display: flex;
     align-items: center;
     gap: 10px;
-    background: rgba(15,15,25,0.85);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 24px;
-    padding: 6px 14px 6px 10px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 5px 12px 5px 10px;
     font-size: 12px;
     color: #aaa;
     cursor: pointer;
     transition: background 0.2s;
+    white-space: nowrap;
   }
-  #sync-btn-container:hover { background: rgba(30,30,50,0.95); }
+  #sync-btn-container:hover { background: rgba(255,255,255,0.12); }
   #sync-btn { background: none; border: none; color: #fff; font-size: 13px; cursor: pointer; }
   #last-synced { font-size: 11px; color: #888; white-space: nowrap; }
+  @media (max-width: 640px) { #last-synced { display: none; } }
   .chart-card {
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
     padding: 20px; position: relative;
@@ -467,20 +467,21 @@ html = '''<!DOCTYPE html>
 </head>
 <body>
 
-<div id="sync-btn-container" onclick="triggerSync()">
-  <button id="sync-btn">🔄 Sync</button>
-  <span id="last-synced">Last synced: __LAST_SYNCED__</span>
-</div>
-
 <div class="header">
   <div class="header-icon">🪁</div>
   <div class="header-title">
     <h1>Kite Dashboard</h1>
     <p id="header-subtitle">Loading data…</p>
   </div>
-  <div style="display:flex;gap:8px;align-items:center;">
-    <span style="font-size:0.78rem;color:var(--text3);">Last session:</span>
-    <span id="last-session-date" style="font-size:0.85rem;color:var(--accent3);font-weight:600;"></span>
+  <div style="display:flex;gap:16px;align-items:center;">
+    <div id="sync-btn-container" onclick="triggerSync()">
+      <button id="sync-btn">🔄 Sync</button>
+      <span id="last-synced">Last synced: __LAST_SYNCED__</span>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span style="font-size:0.78rem;color:var(--text3);">Last session:</span>
+      <span id="last-session-date" style="font-size:0.85rem;color:var(--accent3);font-weight:600;"></span>
+    </div>
   </div>
 </div>
 
